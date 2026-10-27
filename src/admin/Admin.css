@@ -1,0 +1,372 @@
+/* 관리자 화면 스타일 */
+
+.admin {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #e0e0e0;
+  padding: 2rem;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.admin-subtitle {
+  color: #aab;
+  font-size: 1.1rem;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-section h2 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 조 설정 */
+.group-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.group-add input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.group-add input::placeholder {
+  color: #888;
+}
+
+.group-add button {
+  padding: 0.6rem 1.2rem;
+  background: #4a90d9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.group-add button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-height: 450px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.group-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.group-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.group-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.group-card.active {
+  border-color: #4a90d9;
+  background: rgba(74, 144, 217, 0.1);
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.group-header h3 {
+  flex: 1;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.remove-btn {
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.remove-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.remove-btn.small {
+  padding: 0 0.3rem;
+  font-size: 0.8rem;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-members {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.member-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.member-add input {
+  flex: 1;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.member-add button {
+  padding: 0.4rem 0.8rem;
+  background: #5cb85c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.member-name {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.empty-message {
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* 장애물 설정 */
+.obstacle-type {
+  margin-bottom: 1.5rem;
+}
+
+.obstacle-type h3 {
+  color: #aab;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.obstacle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.obstacle-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.obstacle-item span {
+  flex: 1;
+}
+
+.obstacle-item span:first-child {
+  color: #4a90d9;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.obstacle-item span:last-child {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.obstacle-item button {
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.add-btn {
+  padding: 0.4rem 0.8rem;
+  background: rgba(74, 144, 217, 0.2);
+  color: #4a90d9;
+  border: 1px solid #4a90d9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  align-self: flex-start;
+}
+
+.add-btn:hover {
+  background: rgba(74, 144, 217, 0.3);
+}
+
+/* 셔플 옵션 */
+.shuffle-option {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.shuffle-option label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.shuffle-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4a90d9;
+}
+
+/* 시작 버튼 */
+.start-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e94560, #c23152);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.start-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+}
+
+.start-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.admin-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-footer p {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+.admin-section, .group-card { min-width: 0; }
+.shuffle-option input[type=password] { display:block; width:100%; margin-top:.5rem; padding:.6rem; }
+@media(max-width:600px) {
+ .admin { padding:1rem; }
+ .admin-content { grid-template-columns:minmax(0,1fr); gap:1rem; }
+ .admin-section { padding:1rem; }
+ .group-add, .member-add { flex-wrap:wrap; }
+ .obstacle-item { flex-wrap:wrap; overflow-wrap:anywhere; }
+}
+.admin-controls {border:0;padding:0;margin:0;min-width:0}
+.group-name-edit {flex:1;min-width:0;font:inherit;font-weight:600;background:transparent;border:1px solid #53627f;color:white;padding:.4rem;border-radius:4px}
+.race-settings {display:grid;gap:.7rem;margin-top:1rem;padding:1rem;background:#ffffff0d;border-radius:8px}
+.race-settings label {display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.race-settings input[type=number] {width:90px}
+.race-settings input,.race-settings select {padding:.4rem;border-radius:4px}
+.slack-settings label:first-child {display:block}
+.slack-settings p {font-size:.85rem;line-height:1.5;color:#bbc8dd}
+.admin button:disabled {opacity:.55;cursor:not-allowed}
+.photo-fallback {display:inline-flex;align-items:center;justify-content:center;background:#375276;color:white;flex-shrink:0}
