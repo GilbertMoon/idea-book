@@ -1,6 +1,7 @@
+import { HookRenderer } from './HookRenderer.js'
 const colors={background:'#0b1023',lane:'#172139',line:'#3f567c',blue:'#53c9ff',green:'#6de7ba',purple:'#bd8bff',gold:'#ffc76c'}
 export class RaceRenderer {
- constructor(canvas,engine){this.canvas=canvas;this.engine=engine;this.images=new Map();this.ctx=canvas.getContext('2d');this.dpr=0}
+ constructor(canvas,engine){this.canvas=canvas;this.engine=engine;this.images=new Map();this.ctx=canvas.getContext('2d');this.dpr=0;this.hooks=new HookRenderer(this.ctx,engine)}
  dispose(){this.images.clear()}
  draw(){
   const e=this.engine,ctx=this.ctx,ratio=Math.min(window.devicePixelRatio||1,3)
@@ -35,6 +36,39 @@ export class RaceRenderer {
   ctx.fillStyle=colors.gold;ctx.fillText('FINISH',935,737)
   for(let i=0;i<14;i++){ctx.fillStyle=i%2?'#e8f1ff':'#293449';ctx.fillRect(930+i*220/14,e.finishY || 700,220/14,10)}
   e.balls.forEach((b,i)=>this.drawBall(b,i))
+  this.hooks.draw()
+  this.drawCannon()
+ }
+ drawCannon(){
+  const e=this.engine,ctx=this.ctx,system=e.chaseAttackSystem
+  if(!system||e.status!=='RUNNING'||e.settings.chaseAttack.attackMode!=='cannon')return
+  for(const shot of system.projectiles){
+   ctx.save();ctx.strokeStyle='#ffae52';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.previousX??shot.x,shot.previousY??shot.y);ctx.lineTo(shot.x,shot.y);ctx.stroke()
+   ctx.fillStyle='#ffdc78';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.radius,0,Math.PI*2);ctx.fill();ctx.restore()
+  }
+  if(!e.settings.chaseAttack.animationEnabled)return
+  for(const flash of system.flashes){
+   ctx.save();ctx.globalAlpha=Math.min(1,flash.time*5);ctx.translate(flash.x,flash.y)
+   if(flash.type==='fire'){ctx.rotate(flash.angle);ctx.fillStyle='#a5afc5';ctx.fillRect(7,-4,15,8);ctx.fillStyle='#ffd770';ctx.beginPath();ctx.arc(24,0,5,0,Math.PI*2);ctx.fill()}
+   else{
+    ctx.strokeStyle='#ffb467';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,7+(0.25-flash.time)*55,0,Math.PI*2);ctx.stroke()
+    const progress=Math.min(1,(.25-flash.time)/.12)
+    if(progress<1){ctx.fillStyle='#ffdc78';ctx.beginPath();ctx.arc((flash.startX-flash.x)*(1-progress),(flash.startY-flash.y)*(1-progress),5,0,Math.PI*2);ctx.fill()}
+   }
+   ctx.restore()
+  }
+  for(const ball of e.balls){
+   if(ball.dnf||ball.arrivalTime!==null)continue
+   const fade=ball.stunRemaining>0?1:Math.max(0,1-(e.settings.chaseAttack.hitProtection-ball.hitProtection)/.25)
+   if(ball.stunRemaining>0||(ball.hitProtection>0&&fade>0)){
+    ctx.save();ctx.globalAlpha=fade;ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe677'
+    for(let i=0;i<3;i++){const angle=e.animationTime*5+i*Math.PI*2/3;ctx.fillText('★',ball.x+Math.cos(angle)*15,ball.y-ball.radius-12+Math.sin(angle)*4)}
+    ctx.restore()
+   }
+   if(ball.stunRemaining<=0&&ball.hitProtection>0&&e.settings.chaseAttack.attackMode==='cannon'){
+    ctx.save();ctx.strokeStyle='#78f3c6';ctx.globalAlpha=Math.min(1,ball.hitProtection*2);ctx.lineWidth=2;ctx.beginPath();ctx.arc(ball.x,ball.y,ball.radius+6,0,Math.PI*2);ctx.stroke();ctx.restore()
+   }
+  }
  }
  drawRoute(route){
   const ctx=this.ctx,isReturn=route.id.includes('return'),isBypass=route.id.includes('bypass')

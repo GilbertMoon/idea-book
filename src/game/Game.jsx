@@ -10,8 +10,8 @@ import './Game.css'
 const snapshotOf = engine => {
  const ranks=new Map(engine.getRanking().filter(r=>r.arrivalTime!==null).map(r=>[r.id,r.rank]))
  return ({
-  status:engine.status, elapsed:engine.elapsed, animation:engine.animationTime,
-  balls:engine.balls.map(b=>({id:b.id,rank:ranks.get(b.id),name:b.groupName || b.memberName,imageUrl:b.imageUrl,x:b.x,y:b.y,stage:b.stage,route:b.route,arrivalTime:b.arrivalTime,returns:b.returnCount,dnf:b.dnf,stalled:b.stalled})),
+  status:engine.status, elapsed:engine.elapsed, animation:engine.animationTime, hookCount:engine.chaseAttackSystem?.activeAttacks?.length || 0, projectileCount:engine.chaseAttackSystem?.projectiles?.length || 0,
+  balls:engine.balls.map(b=>({id:b.id,rank:ranks.get(b.id),name:b.groupName || b.memberName,imageUrl:b.imageUrl,x:b.x,y:b.y,stage:b.stage,route:b.route,arrivalTime:b.arrivalTime,returns:b.returnCount,dnf:b.dnf,stalled:b.stalled,stunRemaining:b.stunRemaining,attackAttempts:b.attackAttempts || 0,successfulAttacks:b.successfulAttacks || 0,hitCount:b.hitCount || 0,attackState:b.attackState || 'IDLE',attackCooldown:b.attackCooldown || 0})),
 })
 }
 function Arena() {
@@ -35,6 +35,17 @@ function Arena() {
         engine.step(1/120);accumulator-=1/120
         for(const event of engine.events || []){
           soundManager.playEvent(event.type)
+          if(event.type.startsWith('hook-')) {
+            const attacker=engine.balls.find(b=>b.id===event.attackerId)
+            const target=engine.balls.find(b=>b.id===event.targetId)
+            const action=({'hook-cast':'낚싯대 발사','hook-hit':'낚아채기','hook-throw':'뒤로 투척','hook-miss':'낚싯대 공격 취소'})[event.type] || '낚싯대'
+            setAnnouncement(`${attacker?.groupName || '추격자'} → ${target?.groupName || '대상'} · ${action}`)
+          }
+          if(event.type.startsWith('cannon-')) {
+            const attacker=engine.balls.find(b=>b.id===event.attackerId),target=engine.balls.find(b=>b.id===event.targetId)
+            const action=({'cannon-fire':'대포 발사','cannon-hit':'대포 명중','cannon-miss':'대포 빗나감'})[event.type]
+            setAnnouncement(`${attacker?.groupName || '추격자'} → ${target?.groupName || '대상'} · ${action}`)
+          }
           if(event.type==='return'){
             const ball=engine.balls.find(b=>b.id===event.ballId)
             const stage=event.fromStage || event.stage
@@ -46,7 +57,7 @@ function Arena() {
       if(time-lastPaint>70 || engine.status==='FINISHED') {setSnapshot(snapshotOf(engine));lastPaint=time}
       if(engine.status==='FINISHED'&&!completed){
         completed=true
-        const results=engine.getRanking().map(r=>({...r,elapsedTime:engine.elapsed}))
+        const results=engine.getRanking().map(r=>({...r,elapsedTime:engine.elapsed,attackMode:engine.settings.chaseAttack.attackMode}))
         setRankingResult(results);finishGame()
         return
       }
@@ -65,12 +76,12 @@ function Arena() {
         <button onClick={()=>{soundManager.toggle();setMuted(!soundManager.enabled)}} aria-pressed={muted}>{muted?'소리 켜기':'소리 끄기'}</button>
         <button onClick={back}>관리자 설정</button></div></header>
     <section className="race-stats"><div><span>경기 시간</span><strong className="race-clock">{snapshot.elapsed.toFixed(2)}초</strong></div><div><span>도착</span><strong>{snapshot.balls.filter(b=>b.arrivalTime!==null).length} / {groups.length}</strong></div><div><span>제한시간</span><strong>{settings.maxRaceSeconds}초</strong></div><div><span>복귀 제한</span><strong>{settings.maxReturns}회</strong></div></section>
-    <div className="race-layout"><aside className="team-rail"><h2>참가 팀</h2><p>팀별 공은 서로 충돌하지 않습니다.</p>
-      {snapshot.balls.map((b,i)=><div className="team-progress" key={b.id} data-id={b.id} data-x={b.x.toFixed(2)} data-y={b.y.toFixed(2)} data-stage={b.stage} data-route={b.route}>
-        <TeamToken key={`${b.id}-${b.imageUrl}`} imageUrl={b.imageUrl} index={i} /><div><strong>{b.name}</strong><small>{b.dnf?'DNF · 미완주':b.arrivalTime!==null?`${b.rank}위 · 도착 ${b.arrivalTime.toFixed(2)}초`:`${b.stage}단계 · ${b.stalled?'정체 감지':routeName(b.route)}`} · 복귀 {b.returns}회</small></div></div>)}
+    <div className="race-layout"><aside className="team-rail"><h2>참가 팀</h2><p>일반 공 충돌은 없으며, 추격 공격 조건을 만족할 때만 상호작용합니다.</p>
+      {snapshot.balls.map((b,i)=><div className="team-progress" key={b.id} data-id={b.id} data-x={b.x.toFixed(2)} data-y={b.y.toFixed(2)} data-stage={b.stage} data-route={b.route} data-stun-remaining={b.stunRemaining} data-attack-attempts={b.attackAttempts} data-attack-state={b.attackState} data-successful-attacks={b.successfulAttacks} data-hit-count={b.hitCount}>
+        <TeamToken key={`${b.id}-${b.imageUrl}`} imageUrl={b.imageUrl} index={i} /><div><strong>{b.name}</strong><small>{b.dnf?'DNF · 미완주':b.arrivalTime!==null?`${b.rank}위 · 도착 ${b.arrivalTime.toFixed(2)}초`:`${b.stage}단계 · ${b.stalled?'정체 감지':routeName(b.route)}`} · 복귀 {b.returns}회</small><small className="attack-summary">공격 성공 {b.successfulAttacks}회 · 피격 {b.hitCount}회{b.attackCooldown>0?` · 재사용 ${b.attackCooldown.toFixed(1)}초`:b.attackState!=='IDLE'?` · ${({CASTING:'발사 중',HOOKED:'포획 중',THROWING:'투척 중'})[b.attackState] || '대기 중'}`:''}</small></div></div>)}
     </aside><section className="race-board" aria-label="3단계 경기장">
       <div className="stage-headings"><span>01 · 하강 ↓</span><span>02 · 패들 상승 ↑</span><span>03 · 최종 하강 ↓</span></div>
-      <div className="race-canvas-wrap"><canvas ref={canvasRef} className="game-canvas" aria-label="하강, 컨베이어, 상승, 최종 하강 경기장" data-status={snapshot.status} data-animation={snapshot.animation.toFixed(2)} width={engine.width} height={engine.height}/>
+      <div className="race-canvas-wrap"><canvas ref={canvasRef} className="game-canvas" aria-label="하강, 컨베이어, 상승, 최종 하강 경기장" data-status={snapshot.status} data-animation={snapshot.animation.toFixed(2)} data-hook-count={snapshot.hookCount} data-projectile-count={snapshot.projectileCount} width={engine.width} height={engine.height}/>
         {snapshot.status==='READY'&&<div className="ready-panel"><span>READY</span><h2>모든 팀, 출발 준비 완료</h2><p>장애물은 움직이고 있습니다. 원하는 순간에 출발하세요.</p><button onClick={depart}>출발</button></div>}
       </div>
       <div className="race-legend"><span>하강 구간</span><span>상승 보조 기류 + 회전 패들</span><span>보라색: 복귀 벨트 · 점선: 보호 우회로</span></div>

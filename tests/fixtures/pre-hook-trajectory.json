@@ -1,0 +1,373 @@
+{
+  "sourceCommit": "d5b7864d7c4aa41bd10834fb821b9ea7ee1a49ed",
+  "groups": [
+    {
+      "id": "baseline-0",
+      "name": "Baseline 0"
+    },
+    {
+      "id": "baseline-1",
+      "name": "Baseline 1"
+    },
+    {
+      "id": "baseline-2",
+      "name": "Baseline 2"
+    },
+    {
+      "id": "baseline-3",
+      "name": "Baseline 3"
+    }
+  ],
+  "fields": [
+    "id",
+    "x",
+    "y",
+    "vx",
+    "vy",
+    "stage",
+    "route",
+    "arrivalTime",
+    "collisionCount",
+    "returnCount",
+    "returnFromStage2",
+    "returnFromStage3",
+    "dnf"
+  ],
+  "snapshots": [
+    {
+      "tick": 120,
+      "status": "RUNNING",
+      "elapsed": 0.9999999999999989,
+      "balls": [
+        {
+          "id": "baseline-0",
+          "x": 152.98038169390827,
+          "y": 187.89023930256306,
+          "vx": 146.78266342744462,
+          "vy": 66.25158029716764,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 8,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-1",
+          "x": 190.8404105313965,
+          "y": 204.52514436964054,
+          "vx": 154.9923532022046,
+          "vy": 55.299182996078244,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 2,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-2",
+          "x": 229.97403422184206,
+          "y": 217.6186541319265,
+          "vx": 125.60505034563015,
+          "vy": 123.74687737936063,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 1,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-3",
+          "x": 209.50617155097598,
+          "y": 272.09203665558937,
+          "vx": -145.37165546311326,
+          "vy": 14.131412696779023,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 1,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        }
+      ]
+    },
+    {
+      "tick": 600,
+      "status": "RUNNING",
+      "elapsed": 5.000000000000038,
+      "balls": [
+        {
+          "id": "baseline-0",
+          "x": 199.2517063767257,
+          "y": 426.5195880036642,
+          "vx": 173.54083013122207,
+          "vy": 86.94207564682988,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 247,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-1",
+          "x": 258,
+          "y": 471.72318727758886,
+          "vx": -102.63213054461505,
+          "vy": 208.22160763668097,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 204,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-2",
+          "x": 236.51515017596034,
+          "y": 488.58344533152456,
+          "vx": -190.13532494266096,
+          "vy": 57.87494126665456,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 213,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-3",
+          "x": 173.77643988691375,
+          "y": 520.7914188736571,
+          "vx": -141.2461889233923,
+          "vy": 63.73676195775922,
+          "stage": 1,
+          "route": "stage1",
+          "arrivalTime": null,
+          "collisionCount": 187,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        }
+      ]
+    },
+    {
+      "tick": 2400,
+      "status": "RUNNING",
+      "elapsed": 19.999999999999506,
+      "balls": [
+        {
+          "id": "baseline-0",
+          "x": 820,
+          "y": 416.0833333333347,
+          "vx": 0,
+          "vy": 230,
+          "stage": 3,
+          "route": "return3",
+          "arrivalTime": null,
+          "collisionCount": 343,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        },
+        {
+          "id": "baseline-1",
+          "x": 729.9166666666684,
+          "y": 760,
+          "vx": -230,
+          "vy": 0,
+          "stage": 3,
+          "route": "return3",
+          "arrivalTime": null,
+          "collisionCount": 373,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        },
+        {
+          "id": "baseline-2",
+          "x": 950.2266413782182,
+          "y": 500.5129558348111,
+          "vx": -33.14159497640692,
+          "vy": 14.036332874213485,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": null,
+          "collisionCount": 359,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-3",
+          "x": 820,
+          "y": 419.91666666666805,
+          "vx": 0,
+          "vy": 230,
+          "stage": 3,
+          "route": "return3",
+          "arrivalTime": null,
+          "collisionCount": 332,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        }
+      ]
+    },
+    {
+      "tick": 4800,
+      "status": "RUNNING",
+      "elapsed": 39.99999999999837,
+      "balls": [
+        {
+          "id": "baseline-0",
+          "x": 975.5331057323699,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 34.968408876612564,
+          "collisionCount": 540,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        },
+        {
+          "id": "baseline-1",
+          "x": 1170,
+          "y": 222.83333333333297,
+          "vx": 0,
+          "vy": 230,
+          "stage": 3,
+          "route": "bypass3",
+          "arrivalTime": null,
+          "collisionCount": 386,
+          "returnCount": 2,
+          "returnFromStage2": 0,
+          "returnFromStage3": 2,
+          "dnf": false
+        },
+        {
+          "id": "baseline-2",
+          "x": 976.8935636418728,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 23.289125006450448,
+          "collisionCount": 578,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-3",
+          "x": 976.0384262714698,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 35.15559689181887,
+          "collisionCount": 532,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        }
+      ]
+    },
+    {
+      "tick": 10800,
+      "status": "FINISHED",
+      "elapsed": 45.19999999999808,
+      "balls": [
+        {
+          "id": "baseline-0",
+          "x": 975.5331057323699,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 34.968408876612564,
+          "collisionCount": 540,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        },
+        {
+          "id": "baseline-1",
+          "x": 977.686056371765,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 45.19993491839318,
+          "collisionCount": 535,
+          "returnCount": 2,
+          "returnFromStage2": 0,
+          "returnFromStage3": 2,
+          "dnf": false
+        },
+        {
+          "id": "baseline-2",
+          "x": 976.8935636418728,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 23.289125006450448,
+          "collisionCount": 578,
+          "returnCount": 0,
+          "returnFromStage2": 0,
+          "returnFromStage3": 0,
+          "dnf": false
+        },
+        {
+          "id": "baseline-3",
+          "x": 976.0384262714698,
+          "y": 688,
+          "vx": 0,
+          "vy": 0,
+          "stage": 3,
+          "route": "stage3",
+          "arrivalTime": 35.15559689181887,
+          "collisionCount": 532,
+          "returnCount": 1,
+          "returnFromStage2": 0,
+          "returnFromStage3": 1,
+          "dnf": false
+        }
+      ]
+    }
+  ]
+}

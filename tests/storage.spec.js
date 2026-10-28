@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test('configuration and photo Blobs survive reload; opt-out deletes webhook and deleted photos', async ({ page }) => {
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   const result = await page.evaluate(async () => {
     const { StorageService } = await import('/src/services/StorageService.js')
     const service = new StorageService('storage-test-persistence')
@@ -17,7 +17,7 @@ test('configuration and photo Blobs survive reload; opt-out deletes webhook and 
 
 
 test('durable configuration survives a fresh page and queued snapshots cannot resurrect deleted photos', async ({ page }) => {
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   await page.evaluate(async () => {
     const {StorageService} = await import('/src/services/StorageService.js')
     const service = new StorageService('storage-test-restart')
@@ -40,7 +40,7 @@ test('durable configuration survives a fresh page and queued snapshots cannot re
 })
 
 test('corrupt photos, incompatible schemas and blocked upgrades reject without exposing stored values', async ({ page }) => {
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   const failures = await page.evaluate(async () => {
     const {StorageService,storageErrorMessage} = await import('/src/services/StorageService.js')
     const service = new StorageService('storage-test-corrupt')
@@ -86,7 +86,7 @@ async function mountContext(page) {
 }
 
 test('race replay retains configuration and photo URLs are revoked only after removal', async ({page}) => {
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   await mountContext(page)
   await page.evaluate(() => window.testGameState.addGroup({name:'Retained'}))
   await page.waitForFunction(() => window.testGameState.groups.length===1)
@@ -107,7 +107,7 @@ test('race replay retains configuration and photo URLs are revoked only after re
 
 test('denied IndexedDB leaves the context usable with a visible storage error', async ({page}) => {
   await page.addInitScript(() => {Object.defineProperty(window,'indexedDB',{value:undefined})})
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   await mountContext(page)
   expect(await page.evaluate(() => window.testGameState.storageError)).toBeTruthy()
   await page.evaluate(() => window.testGameState.addGroup({name:'Session only'}))
@@ -122,7 +122,7 @@ test('a persistent browser profile restores teams and Blob photos after browser 
   const profile=testInfo.outputPath('browser-profile')
   let context=await chromium.launchPersistentContext(profile,{channel:'msedge',headless:true})
   let page=await context.newPage()
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   await page.evaluate(async () => {
     const {StorageService}=await import('/src/services/StorageService.js')
     const service=new StorageService('restart-durable')
@@ -133,7 +133,7 @@ test('a persistent browser profile restores teams and Blob photos after browser 
   context=await chromium.launchPersistentContext(profile,{channel:'msedge',headless:true})
   try {
     page=await context.newPage()
-    await page.goto('http://127.0.0.1:5188/')
+    await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
     const restored=await page.evaluate(async () => {
       const {StorageService}=await import('/src/services/StorageService.js')
       const service=new StorageService('restart-durable')
@@ -146,7 +146,8 @@ test('a persistent browser profile restores teams and Blob photos after browser 
 })
 
 test('failed hydration preserves damaged records and an error status rather than overwriting them',async ({page}) => {
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
+  await expect(page.locator('.save-status')).toHaveText('이 브라우저에 저장됨')
   await page.evaluate(async () => {
     const {StorageService}=await import('/src/services/StorageService.js')
     const service=new StorageService()
@@ -168,7 +169,7 @@ test('failed hydration preserves damaged records and an error status rather than
 })
 
 test('a failed snapshot rolls back all stores instead of committing cleared teams and photos',async({page})=>{
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   expect(await page.evaluate(async()=>{
     const {StorageService}=await import('/src/services/StorageService.js')
     const service=new StorageService('atomic-rollback')
@@ -182,7 +183,7 @@ test('a failed snapshot rolls back all stores instead of committing cleared team
 })
 
 test('duplicate prepare and finish events preserve one run and cannot show results while idle',async({page})=>{
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   await mountContext(page)
   await page.evaluate(()=>window.testGameState.finishGame())
   expect(await page.evaluate(()=>window.testGameState.showResult)).toBe(false)
@@ -195,7 +196,7 @@ test('duplicate prepare and finish events preserve one run and cannot show resul
 })
 
 test('blocked database opening reports failure and closes the eventual connection',async({page})=>{
-  await page.goto('http://127.0.0.1:5188/')
+  await page.goto(`http://127.0.0.1:${process.env.E2E_PORT || 5188}/`)
   expect(await page.evaluate(async()=>{
     const {StorageService}=await import('/src/services/StorageService.js')
     const originalOpen=indexedDB.open.bind(indexedDB)

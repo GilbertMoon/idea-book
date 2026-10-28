@@ -1,3 +1,4 @@
+import { ChaseAttackSystem } from './ChaseAttackSystem.js'
 const FIXED_DT = 1 / 120
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 const point = (x,y) => ({x,y})
@@ -41,6 +42,8 @@ export class RaceEngine {
     if(isShuffled)for(let i=ordered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ordered[i],ordered[j]]=[ordered[j],ordered[i]]}
     this.balls=ordered.map((g,i)=>({id:g.id,groupId:g.id,groupName:g.name,memberName:g.name??g.members?.[0]?.name,imageUrl:g.members?.[0]?.imageUrl??g.members?.[0]?.photo??null,x:72+(i+0.5)/Math.max(1,ordered.length)*176,y:105,radius:12,vx:0,vy:0,stage:1,route:'stage1',arrivalTime:null,collisionCount:0,returnFromStage2:0,returnFromStage3:0,returnCount:0,dnf:false,stalled:false,stallDuration:0,stallReason:null,returnCooldown:0,lastGateContact:null}))
     this.events=[]
+    this.chaseAttackSystem=new ChaseAttackSystem(this,settings.chaseAttack)
+    this.settings.chaseAttack=this.chaseAttackSystem.settings
   }
   start(){if(this.status!=='READY')return false;this.status=this.balls.length?'RUNNING':'FINISHED';return true}
   step(dt=FIXED_DT){
@@ -56,7 +59,14 @@ export class RaceEngine {
     const before=this.elapsed;this.elapsed+=dt
     for(const b of this.balls){
       if(b.arrivalTime!==null||b.dnf)continue
+      b.previousPosition={x:b.x,y:b.y}
       b.returnCooldown=Math.max(0,b.returnCooldown-dt)
+      if(b.stunRemaining>0){
+        const frozen=Math.min(dt,b.stunRemaining)
+        b.totalStunTime+=frozen;b.stunRemaining=Math.max(0,b.stunRemaining-dt)
+        if(b.stunRemaining<1e-8){b.stunRemaining=0;b.recovering=true;this.events.push({type:'stun-end',ballId:b.id})}
+        continue
+      }
       if(b.transport){this.moveTransport(b,dt);continue}
       const py=b.y
       // The ascent has an identical bounded air-lift motor for all balls.
@@ -69,16 +79,19 @@ export class RaceEngine {
       if(b.x<lane.left+b.radius){b.x=lane.left+b.radius;b.vx=Math.abs(b.vx)*0.65;b.collisionCount++;b.lastContactReason='boundary'}
       if(b.x>lane.right-b.radius){b.x=lane.right-b.radius;b.vx=-Math.abs(b.vx)*0.65;b.collisionCount++;b.lastContactReason='boundary'}
       if(b.y<105&&b.stage!==2){b.y=105;b.vy=Math.abs(b.vy)}
-      for(const o of this.obstacles)if(o.stage===b.stage)this.collide(b,o)
+      let recoveryContact=false
+      for(const o of this.obstacles)if(o.stage===b.stage){const contact=this.collide(b,o,b.recovering);if(contact)recoveryContact=true}
       const gate=this.gates.find(g=>g.stage===b.stage)
       if(gate&&this.gateEnabled(gate)){
         const protectedBall=b.returnCount>=this.settings.maxReturns||b.returnCooldown>0
         if(protectedBall&&((b.stage===2&&b.y<435&&b.y>405)||(b.stage===3&&b.y>150&&b.y<170))){this.transport(b,`bypass${b.stage}`);continue}
-        const contact=this.collide(b,gate)
+        const contact=this.collide(b,gate,b.recovering)
+        if(contact)recoveryContact=true
         if(contact){b.lastGateContact={stage:b.stage,time:this.elapsed,normalX:contact.nx,normalY:contact.ny}
           // Only an actual leftwards outgoing impulse can engage the return belt.
           if(!protectedBall&&contact.impactApplied&&b.vx < -35&&contact.nx< -0.15){const stage=b.stage;b.returnCount++;b[`returnFromStage${stage}`]++;b.returnCooldown=0;this.transport(b,`return${stage}`);this.events.push({type:'return',ballId:b.id,stage,fromStage:stage,toStage:stage-1});continue}
         }
+        if(b.recovering){b.x=clamp(b.x,lane.left+b.radius,lane.right-b.radius);b.recovering=recoveryContact}
       }
       if(b.stage===1&&b.y>=680)this.transport(b,'conveyor')
       else if(b.stage===2&&b.y<=110)this.transport(b,'top')
@@ -87,8 +100,10 @@ export class RaceEngine {
     for(const b of this.balls)this.observeProgress(b)
     if(this.elapsed+1e-8>=this.settings.maxRaceSeconds)for(const b of this.balls)if(b.arrivalTime===null){b.dnf=true;b.dnfReason=b.stalled?'stalled':'time-limit'}
     if(this.balls.every(b=>b.arrivalTime!==null||b.dnf))this.status='FINISHED'
+    this.chaseAttackSystem.step(dt)
   }
   observeProgress(b){
+    if(b.stunRemaining>0){b.progressAnchor=null;b.stalled=false;b.stallDuration=0;return}
     if(b.transport||b.arrivalTime!==null){b.stalled=false;b.stallDuration=0;b.stallReason=null;b.progressAnchor=null;return}
     const anchor=b.progressAnchor
     if(!anchor||Math.hypot(b.x-anchor.x,b.y-anchor.y)>14){b.progressAnchor={x:b.x,y:b.y,time:this.elapsed};b.stalled=false;b.stallDuration=0;b.stallReason=null;return}
@@ -104,7 +119,7 @@ export class RaceEngine {
     if(d<=travel){b.x=p.x;b.y=p.y;b.transport.index++;if(b.transport.index===route.points.length){const id=route.id;b.transport=null;if(id==='conveyor'||id==='return3')b.stage=2;else if(id==='top')b.stage=3;else if(id==='return2')b.stage=1;if(id==='return2'||id==='return3')b.returnCooldown=this.settings.returnCooldown;b.route=`stage${b.stage}`;b.vx=0;b.vy=b.stage===2?-80:80}}
     else{b.vx=dx/d*230;b.vy=dy/d*230;b.x+=b.vx*dt;b.y+=b.vy*dt}
   }
-  collide(b,o){
+  collide(b,o,suppressImpulse=false){
     const ux=Math.cos(o.angle),uy=Math.sin(o.angle),dx=b.x-o.x,dy=b.y-o.y
     const t=clamp(dx*ux+dy*uy,-o.length/2,o.length/2)
     const cx=o.x+ux*t,cy=o.y+uy*t,rx=b.x-cx,ry=b.y-cy,d=Math.hypot(rx,ry),r=b.radius+o.thickness/2
@@ -116,8 +131,8 @@ export class RaceEngine {
     b.x+=nx*correction;b.y+=ny*correction
     const sx=-(cy-o.y)*o.angularVelocity+(o.velocityX??0),sy=(cx-o.x)*o.angularVelocity
     const vn=(b.vx-sx)*nx+(b.vy-sy)*ny
-    if(vn<0){b.vx-=1.35*vn*nx;b.vy-=1.35*vn*ny;b.vx=clamp(b.vx,-300,300);b.vy=clamp(b.vy,-350,350);b.collisionCount++;this.events.push({type:o.type==='paddle'?'paddle':'collision',ballId:b.id})}
-    return {nx,ny,impactApplied:vn<0}
+    if(vn<0&&!suppressImpulse){b.vx-=1.35*vn*nx;b.vy-=1.35*vn*ny;b.vx=clamp(b.vx,-300,300);b.vy=clamp(b.vy,-350,350);b.collisionCount++;this.events.push({type:o.type==='paddle'?'paddle':'collision',ballId:b.id})}
+    return {nx,ny,impactApplied:vn<0&&!suppressImpulse}
   }
   getRanking(){
     const sorted=[...this.balls].sort((a,b)=>(a.arrivalTime??Infinity)-(b.arrivalTime??Infinity))

@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test'
-const base='http://127.0.0.1:5188'
+const base=`http://127.0.0.1:${process.env.E2E_PORT || 5188}`
 async function addTeam(page,name='가조') {
  await page.getByPlaceholder('조 이름 (예: 1조, 2조...)').fill(name)
  await page.getByRole('button',{name:'조 추가',exact:true}).click()
