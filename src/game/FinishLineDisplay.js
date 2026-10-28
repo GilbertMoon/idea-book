@@ -1,6 +1,8 @@
-export const RACE_DISPLAY_SCALE = 0.8
+// The simulation keeps its 1200x820 world; the extra 200px is display-only.
+export const RACE_DISPLAY_SCALE = 1
+export const DISPLAY_VIEWPORT = Object.freeze({width:1400,height:820})
 export const FINISH_ANIMATION_MS = 400
-export const FINISH_LAYOUT = Object.freeze({left:960,top:55,columns:6,firstX:983,firstY:125,spacingX:35,spacingY:48,radius:13})
+export const FINISH_LAYOUT = Object.freeze({left:1200,top:55,columns:5,firstX:1222,firstY:125,spacingX:38,spacingY:48,radius:13})
 
 export class FinishLineDisplay {
   constructor() {

@@ -1,13 +1,13 @@
 import { HookRenderer } from './HookRenderer.js'
-import { FinishLineDisplay, FINISH_LAYOUT, RACE_DISPLAY_SCALE } from './FinishLineDisplay.js'
+import { FinishLineDisplay, FINISH_LAYOUT, RACE_DISPLAY_SCALE, DISPLAY_VIEWPORT } from './FinishLineDisplay.js'
 const colors={background:'#0b1023',lane:'#172139',line:'#3f567c',blue:'#53c9ff',green:'#6de7ba',purple:'#bd8bff',gold:'#ffc76c'}
 export class RaceRenderer {
  constructor(canvas,engine){this.canvas=canvas;this.engine=engine;this.images=new Map();this.ctx=canvas.getContext('2d');this.dpr=0;this.hooks=new HookRenderer(this.ctx,engine);this.finishDisplay=new FinishLineDisplay()}
  dispose(){this.images.clear()}
  draw(time=0){
   const e=this.engine,ctx=this.ctx,ratio=Math.min(window.devicePixelRatio||1,3)
-  if(this.dpr!==ratio){this.dpr=ratio;this.canvas.width=e.width*ratio;this.canvas.height=e.height*ratio;this.canvas.style.aspectRatio=`${e.width} / ${e.height}`}
-  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,e.width,e.height);ctx.fillStyle=colors.background;ctx.fillRect(0,0,e.width,e.height)
+  if(this.dpr!==ratio){this.dpr=ratio;this.canvas.width=DISPLAY_VIEWPORT.width*ratio;this.canvas.height=DISPLAY_VIEWPORT.height*ratio;this.canvas.style.aspectRatio=`${DISPLAY_VIEWPORT.width} / ${DISPLAY_VIEWPORT.height}`}
+  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,DISPLAY_VIEWPORT.width,DISPLAY_VIEWPORT.height);ctx.fillStyle=colors.background;ctx.fillRect(0,0,DISPLAY_VIEWPORT.width,DISPLAY_VIEWPORT.height)
   ctx.save();ctx.scale(RACE_DISPLAY_SCALE,RACE_DISPLAY_SCALE)
   for(const lane of e.lanes || []){
    ctx.fillStyle=colors.lane;ctx.fillRect(lane.left,lane.top,lane.right-lane.left,lane.bottom-lane.top)
@@ -47,9 +47,9 @@ export class RaceRenderer {
  }
  drawFinished(finished){
   const ctx=this.ctx
-  ctx.save();ctx.fillStyle='#111c30';ctx.fillRect(FINISH_LAYOUT.left,FINISH_LAYOUT.top,this.engine.width-FINISH_LAYOUT.left,this.engine.height-FINISH_LAYOUT.top)
+  ctx.save();ctx.fillStyle='#111c30';ctx.fillRect(FINISH_LAYOUT.left,FINISH_LAYOUT.top,DISPLAY_VIEWPORT.width-FINISH_LAYOUT.left,DISPLAY_VIEWPORT.height-FINISH_LAYOUT.top)
   ctx.strokeStyle=colors.line;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(FINISH_LAYOUT.left,FINISH_LAYOUT.top);ctx.lineTo(FINISH_LAYOUT.left,this.engine.height);ctx.stroke()
-  ctx.fillStyle=colors.gold;ctx.textAlign='center';ctx.font='bold 14px system-ui';ctx.fillText('도착 순서',1080,80)
+  ctx.fillStyle=colors.gold;ctx.textAlign='center';ctx.font='bold 14px system-ui';ctx.fillText('도착 순서',(FINISH_LAYOUT.left+DISPLAY_VIEWPORT.width)/2,80)
   ctx.restore()
   for(const entry of finished){
    const index=this.engine.balls.findIndex(ball=>ball.id===entry.ball.id)
