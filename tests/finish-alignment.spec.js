@@ -12,7 +12,7 @@ test('real arrivals animate into separate ranked slots, survive resizing and res
       return fillText.call(this,text,x,y,...rest)
     }
     CanvasRenderingContext2D.prototype.drawImage=function(image,x,y,...rest){
-      if(x>=960&&y<400)window.finishedPhotoDraws++
+      if(x>=1200&&y<400)window.finishedPhotoDraws++
       return drawImage.call(this,image,x,y,...rest)
     }
   })
@@ -50,8 +50,8 @@ test('real arrivals animate into separate ranked slots, survive resizing and res
   await expect(order.first().locator('img')).toBeVisible()
   expect(await page.locator('canvas').getAttribute('data-finish-count')).toBe('2')
   const original=await page.evaluate(()=>window.finishRaceEngine.balls.slice(0,2).map(b=>({x:b.x,y:b.y,arrivalTime:b.arrivalTime})))
-  expect(await page.evaluate(()=>window.finishedLabels.some(v=>v.text==='1위'&&v.x===983))).toBe(true)
-  expect(await page.evaluate(()=>window.finishedLabels.some(v=>v.text==='1위'&&v.x===1018))).toBe(true)
+  expect(await page.evaluate(()=>window.finishedLabels.some(v=>v.text==='1위'&&v.x===1222))).toBe(true)
+  expect(await page.evaluate(()=>window.finishedLabels.some(v=>v.text==='1위'&&v.x===1260))).toBe(true)
   expect(await page.evaluate(()=>window.finishedPhotoDraws)).toBeGreaterThan(0)
   await page.setViewportSize({width:390,height:844});await page.clock.runFor(100)
   await expect(order).toHaveCount(2)
@@ -112,7 +112,7 @@ for(const count of [1,2,5,10,30])test(`${count} finishers fit the independent ar
   expect(new Set(entries.map(e=>`${e.x},${e.y}`)).size).toBe(count)
   for(let i=0;i<entries.length;i++){
     const e=entries[i]
-    expect(e.x-13).toBeGreaterThanOrEqual(960);expect(e.x+13).toBeLessThanOrEqual(1200)
+    expect(e.x-13).toBeGreaterThanOrEqual(1200);expect(e.x+13).toBeLessThanOrEqual(1400)
     expect(e.y-13).toBeGreaterThanOrEqual(55);expect(e.y+13).toBeLessThanOrEqual(820)
     for(let j=0;j<i;j++)expect(Math.hypot(e.x-entries[j].x,e.y-entries[j].y)).toBeGreaterThanOrEqual(26)
   }
