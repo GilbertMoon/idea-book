@@ -29,13 +29,13 @@ export class SlackService {
   buildPayload(data) {
     const blocks = [
       {type:'header',text:{type:'plain_text',text:'🎲 조별 발표 순서 확정'}},
-      {type:'section',text:{type:'mrkdwn',text:`*일시:* ${safeText(data.resultTimestamp)}\n*총 소요 시간:* ${(Number(data.totalTime)||0).toFixed(2)}초`}},
+      {type:'section',text:{type:'mrkdwn',text:`*일시:* ${safeText(data.resultTimestamp)}\n*총 소요 시간:* ${(Number(data.totalTime)||0).toFixed(2)}초\n*공격 방식:* ${safeText(({cannon:'대포',hook:'낚싯대',off:'사용 안 함'})[data.attackMode] || '미지정')}`}},
       {type:'divider'}, {type:'section',text:{type:'mrkdwn',text:'*최종 순위*'}},
     ]
     for (const entry of data.ranking || []) {
       const seconds = arrivalSeconds(entry)
       const label = entry.dnf || entry.rank == null ? 'DNF (미완주)' : `${entry.rank}등`
-      blocks.push({type:'section',text:{type:'mrkdwn',text:`*${label}* · ${safeText(entry.groupName || entry.memberName || '미지정')}\n${entry.dnf ? `사유: ${safeText(({'time-limit':'경기 제한시간 초과',timeout:'경기 제한시간 초과',stalled:'진행 불가'})[entry.dnfReason] || entry.dnfReason || '시간 초과')}` : `소요: ${seconds == null ? '—' : seconds.toFixed(2)+'초'}`} · 충돌: ${Number(entry.collisionCount)||0}회\n복귀 2→1: ${Number(entry.returnFromStage2)||0}회 · 3→2: ${Number(entry.returnFromStage3)||0}회`}})
+      blocks.push({type:'section',text:{type:'mrkdwn',text:`*${label}* · ${safeText(entry.groupName || entry.memberName || '미지정')}\n${entry.dnf ? `사유: ${safeText(({'time-limit':'경기 제한시간 초과',timeout:'경기 제한시간 초과',stalled:'진행 불가'})[entry.dnfReason] || entry.dnfReason || '시간 초과')}` : `소요: ${seconds == null ? '—' : seconds.toFixed(2)+'초'}`} · 충돌: ${Number(entry.collisionCount)||0}회\n복귀 2→1: ${Number(entry.returnFromStage2)||0}회 · 3→2: ${Number(entry.returnFromStage3)||0}회\n공격 시도: ${Number(entry.attackAttempts)||0}회 · ${data.attackMode==='cannon'?'발사':'포획'}: ${Number(entry.attackCount)||0}회 · 성공: ${Number(entry.successfulAttacks)||0}회 · 피격: ${Number(entry.hitCount)||0}회\n대포 발사: ${Number(entry.cannonFired)||0}회 · 명중: ${Number(entry.cannonHits)||0}회 · 기절: ${Number(entry.stunCount)||0}회 (${(Number(entry.totalStunTime)||0).toFixed(2)}초) · 낚싯대 성공: ${Number(entry.hookHits)||0}회\n단계별 성공 1단계: ${Number(entry.attacksByStage?.[1])||0}회 · 2단계: ${Number(entry.attacksByStage?.[2])||0}회 · 3단계: ${Number(entry.attacksByStage?.[3])||0}회`}})
     }
     blocks.push({type:'divider'})
     if (data.groupNames?.length) blocks.push({type:'context',elements:[{type:'mrkdwn',text:`참여 조: ${data.groupNames.map(safeText).join(', ')}`} ]})

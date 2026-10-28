@@ -4,6 +4,7 @@ import { useGameState } from '../state/GameContext'
 import { soundManager } from '../sounds/SoundManager'
 import './Admin.css'
 import { validatePhoto } from './photo.js'
+import { DEFAULT_CHASE_SETTINGS, normalizeChaseSettings, CHASE_LIMITS } from '../config/defaults.js'
 
 function Admin() {
   const navigate = useNavigate()
@@ -34,6 +35,9 @@ function Admin() {
   const setRotatingObs = updater => setObstacles('rotating',updater)
   const setOscillatingObs = updater => setObstacles('oscillating',updater)
   const slackValid = !slackSettings.url || /^https:\/\/hooks\.slack(?:-gov)?\.com\/services\/[^\s]+$/.test(slackSettings.url)
+  const chaseSettings = normalizeChaseSettings(settings.chaseAttack)
+  const updateChase = patch => updateSettings(previous => ({chaseAttack:normalizeChaseSettings({...previous.chaseAttack,...patch})}))
+  const setChaseNumber = (key,value) => {if(value !== '' && Number.isFinite(Number(value))) updateChase({[key]:Number(value)})}
   const setNumber = (key, value, min, max) => {
     if (value === '') return
     const number = Number(value)
@@ -306,6 +310,21 @@ function Admin() {
             <label>최대 복귀 횟수 <input aria-label="최대 복귀 횟수" type="number" min="0" max="10" step="1" value={settings.maxReturns} onChange={e=>setNumber('maxReturns',Math.floor(Number(e.target.value)),0,10)}/></label>
             <label>복귀 보호시간 (초) <input aria-label="복귀 보호시간 (초)" type="number" min="0" max="10" step="0.1" value={settings.returnCooldown} onChange={e=>setNumber('returnCooldown',e.target.value,0,10)}/></label>
             <label>경기 제한시간 (초) <input aria-label="경기 제한시간 (초)" type="number" min="10" max="600" value={settings.maxRaceSeconds} onChange={e=>setNumber('maxRaceSeconds',e.target.value,10,600)}/></label>
+          </div>
+          <div className="race-settings chase-settings">
+            <h3>추격 공격 설정</h3>
+            <fieldset><legend>공격 방식</legend>
+              {[['cannon','대포 공격'],['hook','낚싯대 공격'],['off','공격 사용 안 함']].map(([mode,label])=><label key={mode}><input type="radio" name="attackMode" value={mode} checked={chaseSettings.attackMode===mode} onChange={()=>updateChase({attackMode:mode})}/>{label}</label>)}
+            </fieldset>
+            <p>같은 단계에서 뒤따르는 공만 공격합니다. 거리는 공 중심 간 거리이며 공 지름의 배수입니다. 공격 성공이 추월을 보장하지는 않습니다.</p>
+            {[
+              ['rangeMultiplier','공격 거리 (공 지름 배수)',.1],['cooldown','공격 쿨다운 (초)',.1],['maxAttacks','최대 공격 횟수',1],['hitProtection','피격 보호시간 (초)',.1],
+              ...(chaseSettings.attackMode==='cannon'?[['stunDuration','기절 지속시간 (초)',.1],['projectileSpeed','포탄 속도 (px/s)',10]]:[]),
+              ...(chaseSettings.attackMode==='hook'?[['impulse','공격 충격량 (px/s)',10]]:[]),
+            ].map(([key,label,step])=><label key={key}>{label}<input aria-label={label} type="number" min={CHASE_LIMITS[key][0]} max={CHASE_LIMITS[key][1]} step={step} value={chaseSettings[key]} onChange={e=>setChaseNumber(key,e.target.value)}/></label>)}
+            <label><input type="checkbox" checked={chaseSettings.animationEnabled} onChange={e=>updateChase({animationEnabled:e.target.checked})}/>공격 효과 연출</label>
+            <p>대포는 발사 시 횟수가 소모되며, 낚싯대는 포획 시 소모됩니다. 연출 설정은 공격 물리에 영향을 주지 않습니다.</p>
+            <button className="add-btn" onClick={()=>updateSettings({chaseAttack:{...DEFAULT_CHASE_SETTINGS}})}>공격 설정 초기화</button>
           </div>
           <div className="shuffle-option slack-settings">
             <label>Slack 웹훅 URL <input type="password" placeholder="https://hooks.slack.com/services/... (선택)" aria-label="Slack 웹훅 URL" autoComplete="off" value={slackSettings.url} onChange={e=>setSlackSettings(prev=>({...prev,url:e.target.value.trim()}))}/></label>

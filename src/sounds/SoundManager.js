@@ -8,6 +8,7 @@ export class SoundManager {
     this.ctx = null
     this.enabled = true
     this.eventTimes = new Map()
+    this.hookVoices = 0
   }
 
   /**
@@ -30,7 +31,8 @@ export class SoundManager {
     const last = this.eventTimes.get(type) ?? -Infinity
     if (now - last < interval) return
     this.eventTimes.set(type, now)
-    if (type === 'result') this.playResult()
+    if (type.startsWith('hook-') || type.startsWith('cannon-') || type.startsWith('stun-')) this.playHook(type)
+    else if (type === 'result') this.playResult()
     else if (type === 'start') this.playFall()
     else if (type === 'arrival') this.playArrival()
     else if (type === 'return' || type === 'paddle') {
@@ -41,6 +43,40 @@ export class SoundManager {
       gain.gain.setValueAtTime(.06,now);gain.gain.exponentialRampToValueAtTime(.001,now+.15)
       osc.connect(gain);gain.connect(this.ctx.destination);osc.start(now);osc.stop(now+.15)
     } else this.playCollision()
+  }
+
+  playHook(type) {
+    const voices = {
+      'hook-cast': ['sine', 380, 1100, .14],
+      'hook-hit': ['triangle', 920, 660, .12],
+      'hook-throw': ['sine', 520, 120, .2],
+      'hook-miss': ['triangle', 240, 170, .1],
+      'cannon-fire': ['sawtooth', 180, 55, .16],
+      'cannon-hit': ['triangle', 320, 90, .18],
+      'cannon-miss': ['sine', 300, 180, .1],
+      'stun-start': ['sine', 750, 1050, .2],
+      'stun-end': ['sine', 500, 900, .18],
+    }
+    const tone = voices[type]
+    if (!tone || !this.ctx || !this.enabled || this.hookVoices >= 4) return
+    let oscillator, gain, registered = false
+    try {
+      const now = this.ctx.currentTime
+      oscillator = this.ctx.createOscillator();gain = this.ctx.createGain()
+      oscillator.type = tone[0]
+      oscillator.frequency.setValueAtTime(tone[1], now)
+      oscillator.frequency.exponentialRampToValueAtTime(tone[2], now + tone[3])
+      gain.gain.setValueAtTime(.045, now)
+      gain.gain.exponentialRampToValueAtTime(.001, now + tone[3])
+      oscillator.connect(gain);gain.connect(this.ctx.destination)
+      oscillator.onended = () => { this.hookVoices--;oscillator.disconnect();gain.disconnect() }
+      this.hookVoices++;registered = true
+      oscillator.start(now);oscillator.stop(now + tone[3])
+    } catch {
+      if (registered) this.hookVoices--
+      if (oscillator) { oscillator.onended = null;oscillator.disconnect() }
+      gain?.disconnect()
+    }
   }
 
   /**
@@ -172,7 +208,8 @@ export class SoundManager {
     if (!this.ctx || !this.enabled) return
     try {
       const now = this.ctx.currentTime
-      [523, 659, 784, 1047].forEach((freq, i) => {
+      const frequencies = [523, 659, 784, 1047]
+      frequencies.forEach((freq, i) => {
         const osc = this.ctx.createOscillator()
         const gain = this.ctx.createGain()
         osc.type = 'sine'
