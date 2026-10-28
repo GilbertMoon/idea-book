@@ -80,10 +80,16 @@ export class RaceRenderer {
   }
   for(const ball of e.balls){
    if(ball.dnf||ball.arrivalTime!==null)continue
-   const fade=ball.stunRemaining>0?1:Math.max(0,1-(e.settings.chaseAttack.hitProtection-ball.hitProtection)/.25)
-   if(ball.stunRemaining>0||(ball.hitProtection>0&&fade>0)){
-    ctx.save();ctx.globalAlpha=fade;ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe677'
-    for(let i=0;i<3;i++){const angle=e.animationTime*5+i*Math.PI*2/3;ctx.fillText('★',ball.x+Math.cos(angle)*15,ball.y-ball.radius-12+Math.sin(angle)*4)}
+   if(ball.stunRemaining>0){
+    const radius=ball.radius+10
+    ctx.save();ctx.strokeStyle='#77e6ff';ctx.shadowColor='#47cfff';ctx.shadowBlur=16;ctx.lineWidth=3
+    ctx.beginPath();ctx.arc(ball.x,ball.y,radius,0,Math.PI*2);ctx.stroke()
+    ctx.font='bold 15px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff196'
+    for(let i=0;i<3;i++){const angle=e.animationTime*5+i*Math.PI*2/3;ctx.fillText('★',ball.x+Math.cos(angle)*(radius+9),ball.y+Math.sin(angle)*(radius+9))}
+    ctx.shadowColor='#001326';ctx.shadowBlur=5;ctx.strokeStyle='#001326';ctx.lineWidth=4;ctx.fillStyle='#c8f6ff';ctx.font='bold 15px system-ui'
+    ctx.strokeText('STUN!',ball.x,ball.y-radius-22);ctx.fillText('STUN!',ball.x,ball.y-radius-22)
+    const remaining=`${ball.stunRemaining.toFixed(1)}s`
+    ctx.strokeText(remaining,ball.x,ball.y+radius+22);ctx.fillText(remaining,ball.x,ball.y+radius+22)
     ctx.restore()
    }
    if(ball.stunRemaining<=0&&ball.hitProtection>0&&e.settings.chaseAttack.attackMode==='cannon'){
