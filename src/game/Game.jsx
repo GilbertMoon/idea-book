@@ -5,6 +5,7 @@ import { useGameState } from '../state/GameContext'
 import { soundManager } from '../sounds/SoundManager'
 import { RaceRenderer } from './RaceRenderer.js'
 import { RaceCommentary } from './RaceCommentary.js'
+import { DISPLAY_VIEWPORT, FINISH_LAYOUT } from './FinishLineDisplay.js'
 import Result from './Result'
 import './Game.css'
 
@@ -67,9 +68,9 @@ function Arena() {
       {snapshot.balls.map((b,i)=><div className="team-progress" key={b.id} data-id={b.id} data-x={b.x.toFixed(2)} data-y={b.y.toFixed(2)} data-stage={b.stage} data-route={b.route} data-stun-remaining={b.stunRemaining} data-attack-attempts={b.attackAttempts} data-attack-state={b.attackState} data-successful-attacks={b.successfulAttacks} data-hit-count={b.hitCount}>
         <TeamToken key={`${b.id}-${b.imageUrl}`} imageUrl={b.imageUrl} index={i} /><div><strong>{b.name}</strong><small>{b.dnf?'DNF · 미완주':b.arrivalTime!==null?`${b.rank}위 · 도착 ${b.arrivalTime.toFixed(2)}초`:`${b.stage}단계 · ${b.stalled?'정체 감지':routeName(b.route)}`} · 복귀 {b.returns}회</small><small className="attack-summary">공격 성공 {b.successfulAttacks}회 · 피격 {b.hitCount}회{b.attackCooldown>0?` · 재사용 ${b.attackCooldown.toFixed(1)}초`:b.attackState!=='IDLE'?` · ${({CASTING:'발사 중',HOOKED:'포획 중',THROWING:'투척 중'})[b.attackState] || '대기 중'}`:''}</small></div></div>)}
       <section className="finish-order" aria-label="실시간 도착 순서"><h3>도착 순서</h3><ol>{snapshot.arrivals.map(b=><li key={b.id} data-id={b.id} data-rank={b.rank}><TeamToken imageUrl={b.imageUrl} index={b.index}/><span className="finish-order-text">{b.rank}위 · {b.name}</span></li>)}</ol></section>
-    </section><Commentary view={snapshot.commentary}/></aside><section className="race-board" aria-label="3단계 경기장">
+    </section><Commentary view={snapshot.commentary}/></aside><section className="race-board" aria-label="3단계 경기장" style={{'--race-viewport-width':DISPLAY_VIEWPORT.width,'--race-viewport-height':DISPLAY_VIEWPORT.height,'--finish-column':`${(DISPLAY_VIEWPORT.width-FINISH_LAYOUT.left)/DISPLAY_VIEWPORT.width*100}%`}}>
       <div className="stage-headings"><span>01 · 하강 ↓</span><span>02 · 패들 상승 ↑</span><span>03 · 최종 하강 ↓</span><span>도착 순서</span></div>
-      <div className="race-canvas-wrap"><canvas ref={canvasRef} className="game-canvas" aria-label="하강, 컨베이어, 상승, 최종 하강 경기장과 도착 순서" data-status={snapshot.status} data-animation={snapshot.animation.toFixed(2)} data-finish-count={snapshot.arrivals.length} data-hook-count={snapshot.hookCount} data-projectile-count={snapshot.projectileCount} width={engine.width} height={engine.height}/>
+      <div className="race-canvas-wrap"><canvas ref={canvasRef} className="game-canvas" aria-label="하강, 컨베이어, 상승, 최종 하강 경기장과 도착 순서" data-status={snapshot.status} data-animation={snapshot.animation.toFixed(2)} data-finish-count={snapshot.arrivals.length} data-hook-count={snapshot.hookCount} data-projectile-count={snapshot.projectileCount} width={DISPLAY_VIEWPORT.width} height={DISPLAY_VIEWPORT.height}/>
         {snapshot.status==='READY'&&<div className="ready-panel"><span>READY</span><h2>모든 팀, 출발 준비 완료</h2><p>장애물은 움직이고 있습니다. 원하는 순간에 출발하세요.</p><button onClick={depart}>출발</button></div>}
       </div>
       <div className="race-legend"><span>하강 구간</span><span>상승 보조 기류 + 회전 패들</span><span>보라색: 복귀 벨트 · 점선: 보호 우회로</span></div>

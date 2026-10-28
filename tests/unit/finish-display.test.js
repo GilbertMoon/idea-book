@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { FinishLineDisplay, FINISH_ANIMATION_MS, FINISH_LAYOUT, RACE_DISPLAY_SCALE } from '../../src/game/FinishLineDisplay.js'
+import { FinishLineDisplay, FINISH_ANIMATION_MS, FINISH_LAYOUT, RACE_DISPLAY_SCALE, DISPLAY_VIEWPORT } from '../../src/game/FinishLineDisplay.js'
 import { RaceRenderer } from '../../src/game/RaceRenderer.js'
 import { RaceEngine } from '../../src/physics/RaceEngine.js'
 
@@ -20,7 +20,7 @@ test('one to thirty finishers occupy stable left-to-right slots with bounded row
       assert.equal(index,i)
       assert.equal(x,FINISH_LAYOUT.firstX+(i%FINISH_LAYOUT.columns)*FINISH_LAYOUT.spacingX)
       assert.equal(y,FINISH_LAYOUT.firstY+Math.floor(i/FINISH_LAYOUT.columns)*FINISH_LAYOUT.spacingY)
-      assert.ok(x-FINISH_LAYOUT.radius>=FINISH_LAYOUT.left&&x+FINISH_LAYOUT.radius<=e.width)
+      assert.ok(x-FINISH_LAYOUT.radius>=FINISH_LAYOUT.left&&x+FINISH_LAYOUT.radius<=DISPLAY_VIEWPORT.width)
       assert.ok(y-FINISH_LAYOUT.radius>=FINISH_LAYOUT.top&&y+FINISH_LAYOUT.radius<=e.height)
       for(let j=0;j<i;j++)assert.ok(Math.hypot(x-entries[j].targetX,y-entries[j].targetY)>=FINISH_LAYOUT.radius*2)
     }
@@ -75,10 +75,11 @@ test('renderer draws rank and team photo in the finish area without changing phy
     assert.ok(calls.some(call=>call[0]==='fillText'&&call[1]==='1위'))
     assert.ok(calls.some(call=>call[0]==='drawImage'&&call[2]===FINISH_LAYOUT.firstX-FINISH_LAYOUT.radius))
     assert.deepEqual(e.balls,before)
-    assert.equal(canvas.width,1200);assert.equal(canvas.height,820)
+    assert.equal(canvas.width,1400);assert.equal(canvas.height,820)
+    assert.equal(e.width,1200);assert.equal(e.height,820)
     globalThis.window.devicePixelRatio=2
     assert.equal(renderer.draw(600),false)
-    assert.equal(canvas.width,2400);assert.equal(canvas.height,1640)
+    assert.equal(canvas.width,2800);assert.equal(canvas.height,1640)
     assert.equal(renderer.finishDisplay.update(e.getRanking(),600)[0].x,FINISH_LAYOUT.firstX)
     assert.deepEqual(e.balls,before)
     renderer.dispose()
